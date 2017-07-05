@@ -19,7 +19,7 @@ using Calculus,
  abstract prior <: GP
 
 # directories
- cd("$(homedir())/Downloads/code-freaxs/code-v2")
+ cd("$(homedir())/Downloads/tardigrade")
 
 # include other files
  # include("priorGaussT.jl")
