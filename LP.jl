@@ -19,7 +19,7 @@ function LP(lik::likelihood, y::Array{Float64, 1})
 		aux += 1
 	end
 
-	if any(isnan(lik.dllik(lik, y, θNew)))
+	if any(isnan.(lik.dllik(lik, y, θNew)))
 		println("Newton-algorithm")
 		aux = 0;
 		θNew = θini

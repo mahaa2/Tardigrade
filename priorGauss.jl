@@ -16,7 +16,7 @@ function priorGauss(µ::Float64, σ²::Float64, muprior::prior, sig2prior::prior
  # DESCRIPTION :
  # creates a structure for the Gaussian prior distribution
 
- if ~(σ² > 0)
+ if (σ² <= 0.0)
 	 error("σ² must be greater than zero")
  end
 

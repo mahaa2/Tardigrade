@@ -3,8 +3,9 @@
 
 # packages
 using Calculus,
-      Cubature,
+      SpecialFunctions,
       Distributions,
+      Cubature,
       Cairo,
       Gadfly,
       Contour
@@ -34,6 +35,6 @@ using Calculus,
  include("likEvA.jl")
  include("likEvH.jl")
  include("LP.jl")
+ include("EP.jl")
  include("curves.jl")
  # include("modelSet.jl")
-

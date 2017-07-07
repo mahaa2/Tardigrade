@@ -11,6 +11,9 @@ type likEvA <: likelihood
 	llik::Function
 	dllik::Function
 	d2llik::Function
+	m0::Function
+	m1::Function
+	m2::Function
 	G::Function
 	p::pplikEvA
 	a::Float64
@@ -53,7 +56,7 @@ function likEvA(θ¹::Float64, θ²::Float64, th1prior::prior, th2prior::prior, 
 		w = (y - μ)./σ
 		n = length(y)
 
-		llik = -n*log(σ) + sum(w - exp(w))
+		llik = -n*log(σ) + sum(w - exp.(w))
 
 		if ~isequal(typeof(lik.p.th1), priorEmpty)
 			llik += lik.p.th1.lp(lik.p.th1, θ¹)
@@ -83,13 +86,13 @@ function likEvA(θ¹::Float64, θ²::Float64, th1prior::prior, th2prior::prior, 
 		dl = Float64[]
 
 		if ~isequal(typeof(lik.p.th1), priorEmpty)
-			dll = 1./σ .*(-n + sum(exp(w))).*σ
+			dll = 1./σ .*(-n + sum(exp.(w))).*σ
 			dll += lik.p.th1.dlp(lik.p.th1, θ¹)
 			dl = [dl; dll]
 		end
 
 		if ~isequal(typeof(lik.p.th2), priorEmpty)
-			dll = (-n./σ - sum(w1) + sum(w1.*exp(w))).*σ
+			dll = (-n./σ - sum(w1) + sum(w1.*exp.(w))).*σ
 			dll += lik.p.th2.dlp(lik.p.th2, θ²)
 			dl = [dl; dll]
 		end
@@ -145,9 +148,48 @@ function likEvA(θ¹::Float64, θ²::Float64, th1prior::prior, th2prior::prior, 
 		return(g + d2p)	
 	end
 
+	function m0(lik::likEvA, y::Vector{Float64}, θ::Vector{Float64})
+	 # DESCRIPTION:
+	 # calculate the 0th moment (the normalizing constant)
+
+		f = t -> exp(lik.llik(lik, y, t./(1-t.^2))).*prod((1+t.^2)./((1-t.^2).^2))
+		m0 = hcubature(f, -[0.99; 0.92], [0.99; 0.92])[1]
+
+		return(m0)
+	end
+
+	function m1(lik::likEvA, y::Vector{Float64}, θ::Vector{Float64})
+	 # DESCRIPTION:
+	 # calculate the 1st moment (unnormalized)
+
+		f1 = t -> t[1]/(1-t[1].^2)*exp(lik.llik(lik, y, t./(1-t.^2)))*prod((1+t.^2)./((1-t.^2).^2))
+		f2 = t -> t[2]/(1-t[2].^2)*exp(lik.llik(lik, y, t./(1-t.^2)))*prod((1+t.^2)./((1-t.^2).^2))
+
+		m1 = hcubature(f1, -[0.99; 0.95], [0.99; 0.92])[1]
+		m2 = hcubature(f2, -[0.99; 0.95], [0.99; 0.92])[1]
+
+		return([m1; m2])
+	end
+
+	function m2(lik::likEvA, y::Vector{Float64}, θ::Vector{Float64})
+	 # DESCRIPTION:
+	 # calculate the 2nd moment (unnormalized)
+
+		f1 = t -> (t[1]./(1-t[1].^2))^2*exp(lik.llik(lik, y, t./(1-t.^2))).*prod((1+t.^2)./((1-t.^2).^2))
+		f2 = t -> (t[2]./(1-t[2].^2))^2*exp(lik.llik(lik, y, t./(1-t.^2))).*prod((1+t.^2)./((1-t.^2).^2))
+		f3 = t -> prod(t./(1-t.^2))*exp(lik.llik(lik, y, t./(1-t.^2))).*prod((1+t.^2)./((1-t.^2).^2))
+
+		m1 = hcubature(f1, -[0.99; 0.92], [0.99; 0.92])[1]
+		m2 = hcubature(f2, -[0.92; 0.92], [0.92; 0.92])[1]
+		m3 = hcubature(f3, -[0.99; 0.92], [0.99; 0.92])[1]
+
+		return([m1 m3; m3 m2])
+	end
+
+
 	# pass the structure
 	μ, σ = [θ¹*exp(θ²)-a; exp(θ²)]
-	likEvA(μ, σ, pak, unpak, llik, dllik, d2llik, G, pplikEvA(th1prior, th2prior), a)
+	likEvA(μ, σ, pak, unpak, llik, dllik, d2llik, m0, m1, m2, G, pplikEvA(th1prior, th2prior), a)
 end
 
 # lik = likEv1(1.0, 1.0, pGauss, pGauss)
