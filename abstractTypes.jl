@@ -5,14 +5,14 @@
 using Calculus,
       SpecialFunctions,
       Distributions,
-      Cubature,
-      Cairo,
-      Gadfly,
-      Contour
+      Cubature
+      # Cairo,
+      # Gadfly,
+      # Contour
       # Optim
 
- set_default_plot_format(:png)
- set_default_plot_size(15cm, 15cm)
+ # set_default_plot_format(:png)
+ # set_default_plot_size(15cm, 15cm)
 
 # abstract types
  abstract GP
@@ -31,10 +31,11 @@ using Calculus,
  # include("priorSt.jl")
  include("priorEmpty.jl")
  include("priorGauss.jl")
- include("likEv1.jl")
- include("likEvA.jl")
- include("likEvH.jl")
+ # include("likEv1.jl")
+ # include("likEvA.jl")
+ # include("likEvH.jl")
+ include("likPoisA.jl")
  include("LP.jl")
- include("EP.jl")
- include("curves.jl")
+ # include("EP.jl")
+ # include("curves.jl")
  # include("modelSet.jl")

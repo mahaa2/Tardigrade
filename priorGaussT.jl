@@ -33,14 +33,14 @@ function priorGaussT(µ::Float64, σ²::Float64, muprior::prior, sig2prior::prio
 		throw(BoundsError())
  	end
 
- 	function Φ{T <: Real}(x::T)
+ 	function Φ(x::Vector{Float64})
 	 # DESCRIPRION:
 	 # standart gaussian distribution function
 
 		0.5 + 0.5 .* erf(x./sqrt(2))
 	end
 
-	function lp{T <: Real}(p::priorGaussT, x::T)
+	function lp(p::priorGaussT, x::Vector{Float64})
 	 # DESCRIPTION:
 	 # log-prior
 
@@ -65,7 +65,7 @@ function priorGaussT(µ::Float64, σ²::Float64, muprior::prior, sig2prior::prio
 		return(lp)
 	end
 
-	function dlp{T <: Real}(p::priorGaussT, x::T)
+	function dlp(p::priorGaussT, x::Vector{Float64})
 	 # DESCRIPTION:
 	 # derivative of log-prior
 
@@ -91,14 +91,14 @@ function priorGaussT(µ::Float64, σ²::Float64, muprior::prior, sig2prior::prio
 		return(dlp)
 	end
 
-	function d2lp{T <: Real}(p::priorGaussT, x::T)
+	function d2lp(p::priorGaussT, x::Vector{Float64})
 	 # DESCRIPTION:
 	 # 2nd derivative of log-prior
 
 		if ~any((x .< p.a) | (x .> p.b))
-			d2lp = -1/p.σ²
+			d2lp = -1/p.σ²*ones(length(x))
 		else
-			d2lp = -Inf
+			d2lp = -Inf*ones(length(x))
 		end
 
 		return(d2lp)

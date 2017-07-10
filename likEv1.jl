@@ -26,7 +26,6 @@ function likEv1(µ::Float64, ø::Float64, muprior::prior, phiprior::prior)
 
 		μ = lik.μ 
 		ø = log(lik.σ)
-
 		return([μ, ø])
 	end
 
@@ -36,9 +35,8 @@ function likEv1(µ::Float64, ø::Float64, muprior::prior, phiprior::prior)
 
 		(μ, ø) = θ
 		
-    	lik.μ = μ
+		lik.μ = μ
 		lik.σ = exp(ø)
-
 		return(lik)
 	end
 

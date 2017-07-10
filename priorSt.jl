@@ -22,16 +22,16 @@ function priorSt(µ::Float64, σ::Float64, ν::Float64, muprior::prior, sigprior
 	  error("σ or ν  must be greater than zero")
   end
 
-	function lp{T <: Real}(p::priorSt, x::T)
+	function lp(p::priorSt, x::Vector{Float64})
 	 # DESCRIPTION:
 	 # log-prior for Student-t prior
 
-	  z = (x - p.μ)./ p.σ
+		z = (x - p.μ)./ p.σ
 		zA = z.^2
 		zB = 1 + 1./p.ν .* zA
 
-		lp = sum(lgamma((p.ν + 1)/2) - lgamma(p.ν/2) - log(p.σ) - log(sqrt(pi*p.ν)) -
-		(ν + 1)/2 .* log(zB))
+		lp = lgamma((p.ν + 1)/2)-lgamma(p.ν/2)-log(p.σ)-log(sqrt(pi*p.ν))-(ν + 1)/2
+		.*log(zB)
 
 		if ~isequal(typeof(p.p.mu), priorEmpty)
 			lp += p.p.mu.lp(p.p.mu, p.μ)
@@ -48,7 +48,7 @@ function priorSt(µ::Float64, σ::Float64, ν::Float64, muprior::prior, sigprior
 		return(lp)
 	end
 
-	function dlp{T <: Real}(p::priorSt, x::T)
+	function dlp(p::priorSt, x::Vector{Float64})
 	 # DESCRIPTION:
 	 # derivative of log-prior for Student-t prior
 
@@ -79,11 +79,11 @@ function priorSt(µ::Float64, σ::Float64, ν::Float64, muprior::prior, sigprior
 		return(dlp)
 	end
 
-	function d2lp{T <: Real}(p::priorSt, x::T)
+	function d2lp(p::priorSt, x::Vector{Float64})
 	 # DESCRIPTION:
 	 # 2nd derivative of log-prior for Student-t prior
 
-    z = (x - p.μ)./ p.σ
+      z = (x - p.μ)./ p.σ
 	  zA = z.^2
 	  zB = 1 + 1./p.ν .* zA
 
